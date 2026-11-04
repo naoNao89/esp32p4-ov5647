@@ -1,0 +1,20 @@
+[package]
+name = "ov5647-core"
+version = "0.1.0"
+edition = "2021"
+description = "Pure, hardware-independent logic for the OV5647 / ESP32-P4 camera path"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/naoNao89/esp32p4-ov5647"
+publish = false
+
+[features]
+default = []
+# The firmware links this crate `no_std`. Host test runs enable `std`, which is
+# what the statistics helpers that allocate need.
+std = []
+
+# Only the host tests need this: `src/sensor.rs` from the firmware crate is
+# compiled into the test build (see `lib.rs`) and names `embedded-hal` traits and
+# nothing else.
+[dev-dependencies]
+embedded-hal = "1.0.0"

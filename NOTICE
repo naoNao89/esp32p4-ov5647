@@ -1,0 +1,195 @@
+esp32p4-ov5647
+Copyright 2026 naoNao89
+
+This repository is offered under MIT OR Apache-2.0 (see LICENSE-MIT and
+LICENSE-APACHE). It redistributes material from the third-party projects
+listed below. Those notices are reproduced here as required by the Apache
+License, Version 2.0, section 4(d); the MIT option in this repository's own
+dual licence does not remove that requirement.
+
+Each entry states what is redistributed, the licence as declared by the
+upstream file or package, and the revision the copy was checked against.
+
+--------------------------------------------------------------------------------
+
+1. esp-video-components -- esp_cam_sensor OV5647 driver
+   Copyright 2024-2026 Espressif Systems (Shanghai) CO LTD
+   License: Apache License, Version 2.0
+
+   Source: https://github.com/espressif/esp-video-components
+           esp_cam_sensor/sensors/ov5647/
+
+   Redistributed in src/registers.rs:
+     - the five 2-lane MIPI mode tables
+       (ov5647_mipi_2lane_24Minput_1920x1080_raw10_30fps.h,
+        ov5647_mipi_2lane_24Minput_1280x960_raw10_45fps.h,
+        ov5647_mipi_2lane_24Minput_800x640_raw8_50fps.h,
+        ov5647_mipi_2lane_24Minput_800x800_raw8_50fps.h,
+        ov5647_mipi_2lane_24Minput_800x1280_raw8_50fps.h), tags S1-S5,
+       blob pins df986da962c7fe2ca0d4006757b8bd3d0e68dfcb,
+       8e5f37a0efa62ee2b8bf4a560d1ab0fe074b08e4,
+       85af25b0ccecae13a476595acc8a92c86869d427,
+       b407fe7eaed57a8690af4fa48d01b92d42e1872a,
+       f41ac5ca6985e0d0eff4ab7badccc1db475fe193;
+     - register names, sentinels and the reset / stream-on / stream-off
+       sequences from private_include/ov5647_regs.h,
+       private_include/ov5647_settings.h and ov5647.c, tags S14, S12, S10.
+
+   Licence as stated by the upstream files: every file above carries
+   "SPDX-License-Identifier: Apache-2.0"; esp_cam_sensor/LICENSE is the
+   Apache License, Version 2.0 text.
+
+   Checked against: local mirror of esp-video-components at commit 08bcabd.
+   The five tables hold 447 (register, value) pairs and every one of them
+   matches the Espressif header it is tagged with; the per-table diffs showed
+   zero differences.
+
+   Exception, added after that check: one table is no longer a faithful copy.
+   OV5647_MODE_800X1280_RAW8_50FPS carries two entries corrected from
+   measurement and two entries added, because upstream's values produced a
+   whole, CRC-correct frame with no image in it (the AEC gain ceiling 0x0022 =
+   2.125x pinned the AGC, and the ISP output-window offset upstream omits left
+   the output on the window's extreme left edge). Those four lines are
+   commented as corrected/added rather than tagged `S5`, and the table's own
+   `# Measurement` section records the numbers behind them and what was
+   measured and rejected. The other 445 pairs are unchanged from upstream, and
+   the two added lines are this repository's.
+   Material added by measurement in this repository is not Espressif's.
+
+2. ESP-IDF
+   Copyright 2022-2025 Espressif Systems (Shanghai) CO LTD (years as stated
+   in each file's SPDX-FileCopyrightText line)
+   License: Apache License, Version 2.0
+
+   Source: https://github.com/espressif/esp-idf
+
+   Redistributed:
+     - components/soc/esp32p4/mipi_csi_periph.c: the 38-entry
+       soc_mipi_csi_phy_pll_ranges[] table of {start Mbps, end Mbps,
+       hs_freq_sel} triples, reproduced as hs_freq_sel_for_mbps() in
+       src/csi.rs;
+     - components/esp_app_format/include/esp_app_desc.h: the 256-byte
+       esp_app_desc_t layout, transcribed in examples/common/app_desc.rs;
+     - components/hal/include/hal/dw_gdma_types.h,
+       components/hal/esp32p4/include/hal/dw_gdma_ll.h,
+       components/soc/esp32p4/register/soc/dw_gdma_reg.h and
+       dw_gdma_struct.h, components/hal/esp32p4/include/hal/isp_ll.h,
+       components/esp_driver_isp/src/isp_core.c: register field encodings,
+       clock/event constants and the ISP clock divider rule used in
+       src/csi.rs, src/isp.rs, src/gdma.rs and src/error.rs.
+
+   Licence as stated by the upstream files: "SPDX-License-Identifier:
+   Apache-2.0" on each file above.
+
+   Revisions: read from a local checkout of ESP-IDF at tag v5.5, commit
+   8c750b088c7cd857d079c0eeb495da199b359461, and the paths listed above are
+   that revision's layout. The research notes this repository was derived from
+   were pinned to upstream commit
+   d445e947156f276dfe0db5804e4edf6ae90fe6fb, whose tree is reorganised: the
+   SoC and HAL files sit under components/esp_hal_cam/esp32p4/
+   (mipi_csi_periph.c, include/hal/isp_ll.h) and the register headers under
+   components/soc/esp32p4/register/hw_ver1/soc/. At that revision
+   mipi_csi_periph.c and isp_ll.h declare
+   "SPDX-License-Identifier: Apache-2.0" and dw_gdma_reg.h / dw_gdma_struct.h
+   declare "SPDX-License-Identifier: Apache-2.0 OR MIT". Apache-2.0 is
+   therefore available at both revisions -- the option this repository
+   redistributes under -- although the declared strings differ: at tag v5.5
+   the two dw_gdma register headers
+   (components/soc/esp32p4/register/soc/dw_gdma_reg.h and dw_gdma_struct.h;
+   the register directory gains the hw_ver1 level at the pinned revision)
+   declare Apache-2.0 alone. The redistribution terms are unchanged.
+
+3. esp-bootloader-esp-idf (esp-rs)
+   Copyright: not declared. The published crate ships no LICENSE file and no
+   copyright line; it is published from the esp-rs/esp-hal project, whose
+   LICENSE-MIT reads "Copyright 2021 esp-rs".
+   License: MIT OR Apache-2.0
+
+   Source: https://github.com/esp-rs/esp-hal, crate esp-bootloader-esp-idf
+   0.6.0 (package metadata: license = "MIT OR Apache-2.0").
+
+   Redistributed: the layout emitted by the esp_app_desc!() macro, written
+   out as the EspAppDesc struct in examples/common/app_desc.rs. The crate
+   itself is not a dependency of this repository; only that layout is
+   reproduced. The same 256-byte layout is also defined by ESP-IDF's
+   esp_app_desc.h (entry 2 above).
+
+4. esp-hal, esp-rom-sys, esp32p4 PAC (esp-rs)
+   Copyright 2021 esp-rs (esp-hal and esp-rom-sys, from
+   https://raw.githubusercontent.com/esp-rs/esp-hal/main/LICENSE-MIT);
+   2022 esp-rs (PAC, from
+   https://raw.githubusercontent.com/esp-rs/esp-pacs/main/LICENSE-MIT).
+   The PAC's vendored SVD carries "Copyright 2026 Espressif Systems
+   (Shanghai) PTE LTD" with an Apache-2.0 notice.
+   License: MIT OR Apache-2.0 (SVD data: Apache-2.0)
+
+   Sources:
+     - esp-hal-p4-pre-v3 1.1.0-p4v13.2 -- https://github.com/esp-rs/esp-hal
+     - esp-rom-sys-p4-pre-v3 0.1.4-p4v13.1 -- https://github.com/esp-rs/esp-hal
+     - esp32p4-p4-pre-v3-5a07030 0.2.0-p4v13.1 -- https://github.com/esp-rs/esp-pacs
+
+   Licence as stated by each crate's Cargo.toml: "MIT OR Apache-2.0". The
+   published crates ship no LICENSE files, so the texts travel with the
+   upstream repositories named above.
+   Redistributed as compiled dependencies; the register definitions,
+   cache-maintenance entry points and ROM symbols used by src/ come from
+   these crates.
+
+--------------------------------------------------------------------------------
+
+5. Reference documents, not redistributed
+
+   OV5647 datasheet, OmniVision Technologies, preliminary specification
+   version 1.0, November 2009
+   (https://cdn.sparkfun.com/datasheets/Dev/RaspberryPi/ov5647_full.pdf).
+   Its notice page reads "Copyright © 2009 OmniVision Technologies, Inc.
+   All rights reserved ... The information contained in this document is
+   considered proprietary to OmniVision Technologies, Inc ... Individuals
+   and/or organizations are not allowed to re-distribute said information",
+   and it grants no licence. It is cited for register addresses, register
+   names and bit-field semantics; beyond register names, bit-field names and
+   short field descriptions, no extract from it is reproduced in this
+   repository, and the file itself is not included.
+
+   OmniVision Serial Camera Control Bus (SCCB) Functional Specification,
+   document version 2.1, 26 February 2003
+   (https://files.waveshare.com/upload/1/14/OmniVision_Technologies_Seril_Camera_Control_Bus(SCCB)_Specification.pdf).
+   Its notice reads "This document is provided 'as is' with no warranties
+   whatsoever ... No license, expressed or implied, by estoppel or
+   otherwise, to any intellectual property rights is granted herein" and
+   marks the content proprietary, not to be re-distributed. It is cited for
+   SCCB protocol semantics only; neither the file nor any text from it is
+   included here.
+
+   ESP32-P4 Technical Reference Manual and datasheet (Espressif) are cited
+   for D-PHY timing and memory-window facts. Neither is redistributed.
+
+--------------------------------------------------------------------------------
+
+   The register tables in src/registers.rs are transcribed from the Apache-2.0
+   esp-video files listed in entry 1, derived in this repository, or - in the
+   case of OV5647_MODE_800X1280_RAW8_50FPS - transcribed with the corrections
+   entry 1 describes. The source legend of that file lists S1-S5 (esp-video),
+   S8 and S9 (documents of OmniVision Technologies that are cited, not
+   reproduced), and S10, S12 and S14 (also esp-video).
+
+   The 2592x1944 RAW10 mode is derived here from the OV5647 datasheet (entry 5,
+   tag S8 in src/registers.rs) and the esp-video reference (entry 1: S2 for the
+   analog/ISP/AEC register block and the MIPI values, S10/S12/S14 for the stream
+   and sentinel conventions), group by group, as the module documentation of
+   src/registers.rs records. Register values are technical facts of the sensor
+   and can coincide with values in any other OV5647 driver; this record documents
+   the source each value was derived from and the attribution that goes with it,
+   not that no other driver uses the same values.
+
+   The esp-video tables of entry 1 are redistributed from esp-video under the
+   licence those files declare: Apache-2.0, Espressif's declaration for the files
+   it distributes, and the distribution source this repository took them from.
+   That declaration and that source are what this notice relies on, and nothing
+   here is legal advice.
+
+   How the derived table was checked is documented with it: the `# Measurement`
+   section of src/registers.rs records the end-to-end capture of a 6 298 560-byte
+   2592x1944 RAW10 frame on this board, along with the blanking experiment behind
+   the HTS value. Hardware results belong to that section; this notice records
+   provenance and attribution only.

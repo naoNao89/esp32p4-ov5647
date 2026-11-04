@@ -1,0 +1,17 @@
+# Generated build artifacts.
+target/
+**/target/
+
+# macOS metadata.
+.DS_Store
+
+# Agent-local state (.omp) — stays on this machine, never committed.
+.omp/
+
+# Editor droppings.
+**/.vscode/
+**/.zed/
+.cursor/
+__pycache__/
+*.py[cod]
+**/*.rs.bk

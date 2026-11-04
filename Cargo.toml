@@ -1,0 +1,46 @@
+[workspace]
+members = ["crates/ov5647-core"]
+resolver = "2"
+
+[package]
+name = "esp32p4-ov5647"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+description = "OV5647 MIPI CSI-2 camera driver for ESP32-P4 pre-v3 silicon (chip revision 1.3)"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/naoNao89/esp32p4-ov5647"
+readme = "README.md"
+keywords = ["ov5647", "esp32p4", "camera", "mipi-csi-2", "no-std"]
+categories = ["embedded", "hardware-support", "no-std"]
+# Not published until package-publishing compatibility has actually been verified.
+publish = false
+
+[dependencies]
+# Pre-v3 ESP32-P4 HAL. Chip revision 1.3 silicon needs the pinned pre-v3 package:
+# the upstream `esp-hal` for ESP32-P4 targets revision 3.x, and the peripheral
+# base addresses and cache layout differ.
+esp-hal = { package = "esp-hal-p4-pre-v3", version = "=1.1.0-p4v13.2", features = [
+    "esp32p4",
+    "unstable",
+] }
+# Raw PAC, pinned to the exact revision the HAL above depends on so Cargo keeps a
+# single copy of the register definitions. ESP-IDF wraps ISP, MIPI_CSI_HOST,
+# MIPI_CSI_BRIDGE and AXI_DMA; upstream esp-hal does not yet wrap them for the P4,
+# so this driver programs them directly.
+esp32p4 = { package = "esp32p4-p4-pre-v3-5a07030", version = "=0.2.0-p4v13.1", features = [
+    "critical-section",
+    "rt",
+] }
+embedded-hal = "1.0.0"
+critical-section = "1.2"
+# Pure, hardware-independent logic: geometry, DMA bounds, frame integrity, CRC-32.
+ov5647-core = { path = "crates/ov5647-core" }
+
+[features]
+default = []
+# Extra per-transaction diagnostics on the SCCB path.
+verbose = []
+
+[profile.release]
+lto = "off"
